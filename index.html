@@ -1,9 +1,82 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-    <title>URL Division Mapping Tool</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL → Division Mapping Tool</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
+
 <body>
-    <h1>URL Division Mapping Tool</h1>
-    <p>This tool helps in mapping URLs to specific divisions.</p>
+
+    <div class="container">
+
+        <h1>URL → Division Mapping Tool</h1>
+
+        <div class="card">
+
+            <div class="drop-zone" id="dropZone">
+                <p><strong>Drag & Drop Excel/CSV File Here</strong></p>
+                <p>or</p>
+
+                <input type="file"
+                       id="fileInput"
+                       accept=".xlsx,.xls,.csv">
+            </div>
+
+            <textarea id="urlInput"
+                      placeholder="Paste URLs here (one URL per line)..."></textarea>
+
+            <div class="btn-group">
+                <button id="lookupBtn" disabled>
+                    Find Divisions
+                </button>
+
+                <button id="clearBtn" disabled>
+                    Clear
+                </button>
+
+                <button id="downloadExcelBtn" disabled>
+                    Download Excel
+                </button>
+
+                <button id="downloadCsvBtn" disabled>
+                    Download CSV
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+
+            <div class="top-actions">
+
+                <input type="text"
+                       id="filterInput"
+                       placeholder="Filter by Division..."
+                       disabled>
+
+                <input type="text"
+                       id="searchInput"
+                       placeholder="Search URL/Page Name..."
+                       disabled>
+            </div>
+
+            <div class="stats" id="stats"></div>
+
+            <div id="results"></div>
+
+            <div class="pagination" id="pagination"></div>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
 </body>
+
 </html>
