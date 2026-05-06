@@ -438,6 +438,8 @@ function renderResults(){
 
             <tr>
                 <th>URL</th>
+                <th>ID</th>
+                <th>Path</th>
                 <th>Division</th>
                 <th>Sub Division</th>
                 <th>Language</th>
@@ -454,6 +456,10 @@ function renderResults(){
             <tr>
 
                 <td>${r.url}</td>
+
+                <td>${r.id || ""}</td>
+
+                <td>${r.path || ""}</td>
 
                 <td class="${
                     r.division === "Not Found"
@@ -576,6 +582,10 @@ document
 
             URL: r.url,
 
+            ID: r.id,
+
+            Path: r.path,
+
             Division: r.division,
 
             "Sub Division":
@@ -633,11 +643,11 @@ document
     }
 
     let csv =
-`URL,Division,Sub Division,Language,Page Type,Template,Page Name,Duplicate\n`;
+`URL,ID,Path,Division,Sub Division,Language,Page Type,Template,Page Name,Duplicate\n`;
 
     filteredResults.forEach(r => {
 
-        csv += `"${r.url}","${r.division}","${r.subDivision}","${r.language}","${r.pageType}","${r.templateName}","${r.pageName}","${r.duplicate ? "Yes" : "No"}"\n`;
+        csv += `"${r.url}","${r.id}","${r.path}","${r.division}","${r.subDivision}","${r.language}","${r.pageType}","${r.templateName}","${r.pageName}","${r.duplicate ? "Yes" : "No"}"\n`;
     });
 
     const blob =
