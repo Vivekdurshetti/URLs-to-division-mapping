@@ -5,909 +5,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL to Division Mapping Tool</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <style>
-        :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --bg-color: #F9FAFB;
-            --surface: #FFFFFF;
-            --text-dark: #111827;
-            --text-muted: #6B7280;
-            --border: #E5E7EB;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius-md: 12px;
-            --radius-sm: 8px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            line-height: 1.5;
-            padding: 2rem;
-        }
-
-        .header {
-            margin-bottom: 2rem;
-            text-align: left;
-        }
-
-        .header h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            letter-spacing: -0.025em;
-        }
-
-        .header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-top: 0.25rem;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
-
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-            padding: 1.5rem;
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin-bottom: 1rem;
-            color: var(--text-dark);
-        }
-
-        .drop-zone {
-            border: 2px dashed #C7D2FE;
-            background: #EEF2FF;
-            padding: 2rem 1.5rem;
-            text-align: center;
-            border-radius: var(--radius-sm);
-            margin-bottom: 1.5rem;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .drop-zone:hover, .drop-zone.dragover {
-            background: #E0E7FF;
-            border-color: var(--primary);
-        }
-
-        .drop-zone p {
-            color: var(--primary);
-            font-weight: 500;
-            font-size: 0.95rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .drop-zone span {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .drop-zone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        textarea {
-            width: 100%;
-            height: 180px;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            resize: none;
-            font-size: 0.9rem;
-            color: var(--text-dark);
-            background: var(--bg-color);
-            transition: border-color 0.2s;
-            margin-bottom: 1.5rem;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        button {
-            flex: 1;
-            background: var(--surface);
-            color: var(--text-dark);
-            border: 1px solid var(--border);
-            padding: 0.6rem 1rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
-        }
-
-        button:hover:not(:disabled) {
-            background: var(--bg-color);
-        }
-
-        button.primary {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        button.primary:hover:not(:disabled) {
-            background: var(--primary-hover);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .controls-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .search-group {
-            display: flex;
-            gap: 1rem;
-            flex: 1;
-        }
-
-        input[type="text"] {
-            padding: 0.6rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            width: 260px;
-            background: var(--bg-color);
-            transition: all 0.2s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: var(--surface);
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-box {
-            background: var(--bg-color);
-            padding: 1rem;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .stat-box h3 {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-box p {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        /* Table & Copy Features */
-        .table-container {
-            overflow-x: auto;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--surface);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-
-        th, td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            background: #F8FAFC;
-            font-weight: 600;
-            color: var(--text-dark);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background-color: #F1F5F9;
-        }
-
-        .status-badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .status-found { background: #DCFCE7; color: #166534; }
-        .status-missing { background: #FEE2E2; color: #991B1B; }
-        .status-dup { background: #FEF3C7; color: #92400E; }
-
-        /* Copy Actions CSS */
-        .col-header-flex {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            color: #94A3B8;
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 4px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            box-shadow: none;
-            flex: none;
-        }
-
-        .icon-btn:hover {
-            background: #E2E8F0;
-            color: var(--primary);
-        }
-
-        .copy-cell {
-            cursor: pointer;
-            position: relative;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        .copy-cell:hover {
-            background-color: #E0E7FF !important;
-            color: var(--primary) !important;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #111827;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-lg);
-            font-size: 0.95rem;
-            font-weight: 500;
-            opacity: 0;
-            transform: translateY(100%);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .pagination {
-            margin-top: 1.5rem;
-            display: flex;
-            justify-content: center;
-            gap: 0.25rem;
-            flex-wrap: wrap;
-        }
-
-        .pagination button {
-            flex: none;
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            border-radius: 6px;
-        }
-
-        .pagination button:disabled {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            opacity: 1;
-        }
-
-        .status-msg {
-            font-size: 0.85rem;
-            color: #10B981;
-            font-weight: 500;
-            margin-top: 1rem;
-            text-align: center;
-            display: none;
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
-
-        @media(max-width: 1024px) {
-            .dashboard { grid-template-columns: 1fr; }
-            .stats { grid-template-columns: repeat(2, 1fr); }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
     <div class="header">
-        <h1>Mapping Engine</h1>
-        <p>Extract Division Names, IDs, and metadata from your "XP pages" report.</p>
+        <div>
+            <h1>Mapping Engine</h1>
+            <p>Division, page type and metadata insights from your "XP pages" and "XM pages" reports.</p>
+        </div>
     </div>
 
-    <div class="dashboard">
-        
-        <!-- Left Column: Inputs -->
-        <div class="card">
-            <h2 class="card-title">1. Upload Mapping File</h2>
-            <div class="drop-zone" id="dropZone">
-                <p>Click or drag Excel/CSV file here</p>
-                <span>Reads "XP pages" tab automatically</span>
-                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+    <!-- Upload -->
+    <div class="card upload-card">
+        <div class="drop-zone" id="dropZone">
+            <p>Click or drag Excel / CSV files here</p>
+            <span>Reads the "XP pages" and "XM pages" tabs automatically. You can select several files.</span>
+            <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple aria-label="Upload mapping files">
+        </div>
+        <div class="upload-side">
+            <div class="upload-opts">
+                <label for="defaultSource">If a tab or file name doesn't say XP or XM, treat it as:</label>
+                <select id="defaultSource">
+                    <option value="XP">XP pages</option>
+                    <option value="XM">XM pages</option>
+                </select>
             </div>
-            <div id="uploadStatus" class="status-msg">File loaded successfully!</div>
+            <div class="chips" id="sourceChips"></div>
+            <div id="uploadStatus" class="status-msg" role="status" aria-live="polite"></div>
+        </div>
+    </div>
 
-            <h2 class="card-title" style="margin-top: 2rem;">2. Paste URLs</h2>
-            <textarea id="urlInput" placeholder="https://hexagon.com/products/global-advantage&#10;https://hexagon.com/industries/consumer-products..."></textarea>
+    <!-- Tabs -->
+    <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tabBtn-dashboard" data-tab="dashboard" aria-selected="true">Dashboard</button>
+        <button class="tab" role="tab" id="tabBtn-lookup" data-tab="lookup" aria-selected="false">URL Lookup</button>
+        <button class="tab" role="tab" id="tabBtn-browse" data-tab="browse" aria-selected="false">Browse All Fields</button>
+    </div>
 
-            <div class="btn-group">
-                <button id="lookupBtn" class="primary" disabled>Process URLs</button>
-                <div class="btn-row">
-                    <button id="clearBtn" disabled>Clear All</button>
-                    <button id="downloadExcelBtn" disabled>Export .xlsx</button>
-                    <button id="downloadCsvBtn" disabled>Export .csv</button>
+    <!-- ================= DASHBOARD ================= -->
+    <section id="tab-dashboard" class="tab-panel" role="tabpanel">
+        <div id="dashboardContent">
+            <div class="card empty-state">Upload your mapping file to see the dashboard.</div>
+        </div>
+    </section>
+
+    <!-- ================= LOOKUP ================= -->
+    <section id="tab-lookup" class="tab-panel" role="tabpanel" hidden>
+        <div class="split">
+            <div class="card">
+                <h2 class="card-title">Paste URLs</h2>
+                <textarea id="urlInput" placeholder="https://hexagon.com/products/global-advantage&#10;https://hexagon.com/industries/consumer-products..."></textarea>
+
+                <div class="upload-opts" style="margin-bottom: 1rem;">
+                    <label for="lookupSource">Search in:</label>
+                    <select id="lookupSource">
+                        <option value="">XP + XM pages</option>
+                        <option value="XP">XP pages only</option>
+                        <option value="XM">XM pages only</option>
+                    </select>
                 </div>
+
+                <div class="btn-group">
+                    <button id="lookupBtn" class="primary" disabled>Process URLs</button>
+                    <div class="btn-row">
+                        <button id="clearBtn" disabled>Clear All</button>
+                        <button id="downloadExcelBtn" disabled>Export .xlsx</button>
+                        <button id="downloadCsvBtn" disabled>Export .csv</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="controls-top">
+                    <h2 class="card-title" style="margin: 0;">Results Overview</h2>
+                    <div class="search-group">
+                        <input type="text" id="filterInput" placeholder="Filter by Division..." disabled aria-label="Filter by division">
+                        <input type="text" id="searchInput" placeholder="Search URL or Path..." disabled aria-label="Search URL or path">
+                    </div>
+                </div>
+
+                <div class="stats" id="stats"></div>
+
+                <div class="table-container">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th><div class="col-header-flex">URL <button class="icon-btn" data-copy="originalUrl" title="Copy all filtered URLs" aria-label="Copy URLs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div></th>
+                                <th>Source</th>
+                                <th><div class="col-header-flex">ID <button class="icon-btn" data-copy="id" title="Copy all filtered IDs" aria-label="Copy IDs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div></th>
+                                <th><div class="col-header-flex">Language <button class="icon-btn" data-copy="language" title="Copy all filtered Languages" aria-label="Copy languages"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div></th>
+                                <th><div class="col-header-flex">Path <button class="icon-btn" data-copy="path" title="Copy all filtered Paths" aria-label="Copy paths"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div></th>
+                                <th><div class="col-header-flex">Division Names <button class="icon-btn" data-copy="division" title="Copy all filtered Divisions" aria-label="Copy divisions"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div></th>
+                                <th><div class="col-header-flex">SUB-Division <button class="icon-btn" data-copy="subDivision" title="Copy all filtered Sub-Divisions" aria-label="Copy sub-divisions"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div></th>
+                                <th><div class="col-header-flex">Page Types <button class="icon-btn" data-copy="pageType" title="Copy all filtered Page Types" aria-label="Copy page types"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div></th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="pagination"></div>
             </div>
         </div>
+    </section>
 
-        <!-- Right Column: Results -->
+    <!-- ================= BROWSE ================= -->
+    <section id="tab-browse" class="tab-panel" role="tabpanel" hidden>
         <div class="card">
-            
             <div class="controls-top">
-                <h2 class="card-title" style="margin: 0;">Results Overview</h2>
+                <h2 class="card-title" style="margin: 0;">All Pages <span class="card-sub" id="browseCount"></span></h2>
                 <div class="search-group">
-                    <input type="text" id="filterInput" placeholder="Filter by Division..." disabled>
-                    <input type="text" id="searchInput" placeholder="Search URL or Path..." disabled>
+                    <button id="browseExcelBtn" disabled>Export .xlsx</button>
+                    <button id="browseCsvBtn" disabled>Export .csv</button>
+                    <details class="col-picker" id="colPicker">
+                        <summary>Columns</summary>
+                        <div class="panel" id="colPickerPanel"></div>
+                    </details>
                 </div>
             </div>
 
-            <div class="stats" id="stats">
-                <div class="stat-box"><h3>Total Queried</h3><p>0</p></div>
-                <div class="stat-box"><h3>Matches</h3><p>0</p></div>
-                <div class="stat-box"><h3>Not Found</h3><p>0</p></div>
-                <div class="stat-box"><h3>Duplicates</h3><p>0</p></div>
+            <div class="search-group" style="margin-bottom: 1.25rem;">
+                <select id="bf-source" aria-label="Source"></select>
+                <select id="bf-division" aria-label="Division"></select>
+                <select id="bf-subDivision" aria-label="Sub-division"></select>
+                <select id="bf-language" aria-label="Language"></select>
+                <select id="bf-pageType" aria-label="Page type"></select>
+                <select id="bf-quality" aria-label="Data quality">
+                    <option value="">All records</option>
+                    <option value="missingDivision">Missing division</option>
+                    <option value="missingUrl">Missing URL</option>
+                    <option value="dupUrl">Duplicate URL (same source)</option>
+                    <option value="both">URL in both XP and XM</option>
+                </select>
+                <input type="text" id="bf-search" placeholder="Search any field..." aria-label="Search any field">
+                <button id="bf-reset">Reset</button>
             </div>
 
             <div class="table-container">
-                <table id="resultsTable">
-                    <thead>
-                        <tr>
-                            <th>
-                                <div class="col-header-flex">
-                                    URL
-                                    <button class="icon-btn" onclick="copyColumn('originalUrl')" title="Copy all filtered URLs">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="col-header-flex">
-                                    ID
-                                    <button class="icon-btn" onclick="copyColumn('id')" title="Copy all filtered IDs">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="col-header-flex">
-                                    Language
-                                    <button class="icon-btn" onclick="copyColumn('language')" title="Copy all filtered Languages">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="col-header-flex">
-                                    Path
-                                    <button class="icon-btn" onclick="copyColumn('path')" title="Copy all filtered Paths">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="col-header-flex">
-                                    Division Names
-                                    <button class="icon-btn" onclick="copyColumn('divisionNames')" title="Copy all filtered Divisions">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="col-header-flex">
-                                    SUB-Division
-                                    <button class="icon-btn" onclick="copyColumn('subDivision')" title="Copy all filtered Sub-Divisions">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="col-header-flex">
-                                    Page Types
-                                    <button class="icon-btn" onclick="copyColumn('pageTypes')" title="Copy all filtered Page Types">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
-                                </div>
-                            </th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsBody">
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 3rem; color: #94A3B8;">
-                                Awaiting file upload and URL processing...
-                            </td>
-                        </tr>
-                    </tbody>
+                <table id="browseTable">
+                    <thead id="browseHead"></thead>
+                    <tbody id="browseBody"></tbody>
                 </table>
             </div>
-
-            <div class="pagination" id="pagination"></div>
-
+            <div class="pagination" id="browsePagination"></div>
         </div>
-    </div>
+    </section>
 
-    <!-- Toast Element -->
-    <div id="toast" class="toast">Copied!</div>
+    <div id="toast" class="toast" role="status">Copied!</div>
 
-    <script>
-        let urlDivisionMap = {};
-        let filteredResults = [];
-        let visibleResults = [];
-        
-        let currentPage = 1;
-        const pageSize = 15;
-
-        // ========================================
-        // COPY TO CLIPBOARD LOGIC
-        // ========================================
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.innerText = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
-        }
-
-        // Copies the text from a single clicked cell
-        function copyText(element) {
-            const text = element.innerText.trim();
-            if (!text || text === "-" || text === "Not Found") return;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                const preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
-                showToast(`Copied: ${preview}`);
-            }).catch(err => {
-                console.error("Failed to copy:", err);
-            });
-        }
-
-        // Copies the entire column's filtered visible results
-        function copyColumn(key) {
-            if (!visibleResults || visibleResults.length === 0) {
-                alert("No data available to copy.");
-                return;
-            }
-            
-            const dataToCopy = visibleResults
-                .map(r => r[key])
-                .filter(val => val && val !== "Not Found" && val !== "-")
-                .join('\n');
-
-            if (!dataToCopy) {
-                alert("No valid data found in this column to copy.");
-                return;
-            }
-
-            navigator.clipboard.writeText(dataToCopy).then(() => {
-                showToast(`Copied ${visibleResults.length} items to clipboard`);
-            }).catch(err => {
-                console.error("Failed to copy column:", err);
-            });
-        }
-
-        // ========================================
-        // FILE UPLOAD HANDLING
-        // ========================================
-        const fileInput = document.getElementById('fileInput');
-        const dropZone = document.getElementById('dropZone');
-        const uploadStatus = document.getElementById('uploadStatus');
-
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-        });
-
-        function handleFile(file) {
-            if (!file) return;
-            const reader = new FileReader();
-            const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
-
-            reader.onload = function (e) {
-                if (isExcel) parseExcel(e.target.result);
-                else parseCSV(e.target.result);
-            };
-
-            if (isExcel) reader.readAsArrayBuffer(file);
-            else reader.readAsText(file);
-        }
-
-        // ========================================
-        // PARSE EXCEL & CSV
-        // ========================================
-        function parseExcel(data) {
-            const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-            const sheetName = workbook.SheetNames.includes("XP pages") ? "XP pages" : workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const excelData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-            processRows(excelData, sheetName);
-        }
-
-        function parseCSV(text) {
-            const rows = text.split(/\r?\n/).map(r => r.split(","));
-            processRows(rows, "CSV");
-        }
-
-        // ========================================
-        // PROCESS DATA ROWS
-        // ========================================
-        function processRows(rows, sourceName) {
-            if (rows.length < 2) {
-                alert("Invalid file format or empty data.");
-                return;
-            }
-
-            const headers = rows[0].map(h => h ? h.toString().trim().toLowerCase() : "");
-            const getIndex = name => headers.indexOf(name.toLowerCase());
-
-            const urlIndex = getIndex("page urls");
-            if (urlIndex === -1) {
-                alert("Missing critical column: 'Page URLs'");
-                return;
-            }
-
-            urlDivisionMap = {};
-
-            for (let i = 1; i < rows.length; i++) {
-                const row = rows[i];
-                if (!row || row.length === 0) continue;
-
-                const url = row[urlIndex] ? normalizeUrl(row[urlIndex].toString()) : "";
-                if (!url) continue;
-
-                urlDivisionMap[url] = {
-                    id: row[getIndex("id")] || "",
-                    language: row[getIndex("language")] || "",
-                    path: row[getIndex("path")] || "",
-                    divisionNames: row[getIndex("division names")] || "",
-                    subDivision: row[getIndex("sub-division")] || row[getIndex("sub division")] || "",
-                    pageTypes: row[getIndex("page types")] || ""
-                };
-            }
-
-            enableControls();
-            uploadStatus.style.display = "block";
-            uploadStatus.innerText = `Mapped ${Object.keys(urlDivisionMap).length} unique URLs from ${sourceName}.`;
-            setTimeout(() => { uploadStatus.style.display = "none"; }, 5000);
-        }
-
-        function enableControls() {
-            document.getElementById('lookupBtn').disabled = false;
-            document.getElementById('clearBtn').disabled = false;
-            document.getElementById('downloadExcelBtn').disabled = false;
-            document.getElementById('downloadCsvBtn').disabled = false;
-            document.getElementById('filterInput').disabled = false;
-            document.getElementById('searchInput').disabled = false;
-        }
-
-        function normalizeUrl(url) {
-            return url.trim().replace(/\/$/, "").toLowerCase();
-        }
-
-        // ========================================
-        // LOOKUP LOGIC
-        // ========================================
-        document.getElementById('lookupBtn').addEventListener('click', () => {
-            const urls = document.getElementById('urlInput').value.split(/\n/).map(u => normalizeUrl(u)).filter(Boolean);
-
-            if (urls.length === 0) {
-                alert("Please paste URLs to lookup.");
-                return;
-            }
-
-            const seen = new Set();
-
-            filteredResults = urls.map(url => {
-                const data = urlDivisionMap[url];
-                const duplicate = seen.has(url);
-                seen.add(url);
-
-                return {
-                    originalUrl: url,
-                    duplicate,
-                    ...(data || { divisionNames: "Not Found" })
-                };
-            });
-
-            currentPage = 1;
-            renderResults();
-            renderStats();
-        });
-
-        // ========================================
-        // STATS RENDER
-        // ========================================
-        function renderStats() {
-            const total = filteredResults.length;
-            const found = filteredResults.filter(r => r.divisionNames !== "Not Found").length;
-            const notFound = total - found;
-            const duplicates = filteredResults.filter(r => r.duplicate).length;
-
-            document.getElementById('stats').innerHTML = `
-                <div class="stat-box"><h3>Total Queried</h3><p>${total}</p></div>
-                <div class="stat-box"><h3>Matches Found</h3><p style="color: #10B981;">${found}</p></div>
-                <div class="stat-box"><h3>Missing</h3><p style="color: #EF4444;">${notFound}</p></div>
-                <div class="stat-box"><h3>Duplicates</h3><p style="color: #F59E0B;">${duplicates}</p></div>
-            `;
-        }
-
-        // ========================================
-        // RENDER TABLE
-        // ========================================
-        document.getElementById('filterInput').addEventListener('input', () => { currentPage = 1; renderResults(); });
-        document.getElementById('searchInput').addEventListener('input', () => { currentPage = 1; renderResults(); });
-
-        function renderResults() {
-            const filterValue = document.getElementById('filterInput').value.toLowerCase();
-            const searchValue = document.getElementById('searchInput').value.toLowerCase();
-
-            visibleResults = filteredResults.filter(r => {
-                const matchesDiv = (r.divisionNames || "").toLowerCase().includes(filterValue);
-                const matchesSearch = (r.originalUrl || "").toLowerCase().includes(searchValue) || 
-                                      (r.path || "").toLowerCase().includes(searchValue);
-                return matchesDiv && matchesSearch;
-            });
-
-            const start = (currentPage - 1) * pageSize;
-            const paged = visibleResults.slice(start, start + pageSize);
-
-            let html = "";
-
-            if (paged.length === 0) {
-                html = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: #6B7280;">No records found.</td></tr>`;
-            } else {
-                paged.forEach(r => {
-                    const isMissing = r.divisionNames === "Not Found";
-                    
-                    let badges = "";
-                    if (isMissing) badges += `<span class="status-badge status-missing">Missing</span> `;
-                    if (r.duplicate) badges += `<span class="status-badge status-dup">Duplicate</span>`;
-                    if (!isMissing && !r.duplicate) badges += `<span class="status-badge status-found">Found</span>`;
-
-                    html += `
-                        <tr>
-                            <td class="copy-cell" onclick="copyText(this)" title="Click space to copy URL" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
-                                <a href="${r.originalUrl}" target="_blank" onclick="event.stopPropagation()" style="color: var(--primary); text-decoration: none;">${r.originalUrl}</a>
-                            </td>
-                            <td class="copy-cell" onclick="copyText(this)" title="Click to copy ID" style="font-family: monospace; font-size: 0.8rem; color: #64748B;">
-                                ${r.id || "-"}
-                            </td>
-                            <td class="copy-cell" onclick="copyText(this)" title="Click to copy Language">${r.language || "-"}</td>
-                            <td class="copy-cell" onclick="copyText(this)" title="Click to copy Path" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">${r.path || "-"}</td>
-                            <td class="copy-cell" onclick="copyText(this)" title="Click to copy Division Names" style="${isMissing ? 'color: #EF4444; font-style: italic;' : 'font-weight: 500;'}">${r.divisionNames || "-"}</td>
-                            <td class="copy-cell" onclick="copyText(this)" title="Click to copy Sub-Division">${r.subDivision || "-"}</td>
-                            <td class="copy-cell" onclick="copyText(this)" title="Click to copy Page Types">${r.pageTypes || "-"}</td>
-                            <td>${badges}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            document.getElementById('resultsBody').innerHTML = html;
-            renderPagination(visibleResults.length);
-        }
-
-        // ========================================
-        // PAGINATION
-        // ========================================
-        function renderPagination(total) {
-            const totalPages = Math.ceil(total / pageSize);
-            const pagination = document.getElementById('pagination');
-            pagination.innerHTML = "";
-
-            if (totalPages <= 1) return;
-
-            let startPage = Math.max(1, currentPage - 3);
-            let endPage = Math.min(totalPages, currentPage + 3);
-
-            if (startPage > 1) {
-                pagination.appendChild(createPageBtn(1));
-                if (startPage > 2) {
-                    const dots = document.createElement('span');
-                    dots.innerHTML = "...";
-                    dots.style.padding = "0.5rem";
-                    pagination.appendChild(dots);
-                }
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                pagination.appendChild(createPageBtn(i));
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    const dots = document.createElement('span');
-                    dots.innerHTML = "...";
-                    dots.style.padding = "0.5rem";
-                    pagination.appendChild(dots);
-                }
-                pagination.appendChild(createPageBtn(totalPages));
-            }
-        }
-
-        function createPageBtn(pageNum) {
-            const btn = document.createElement('button');
-            btn.innerText = pageNum;
-            if (pageNum === currentPage) btn.disabled = true;
-            btn.addEventListener('click', () => {
-                currentPage = pageNum;
-                renderResults();
-            });
-            return btn;
-        }
-
-        // ========================================
-        // CLEAR & EXPORTS
-        // ========================================
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            document.getElementById('urlInput').value = "";
-            document.getElementById('filterInput').value = "";
-            document.getElementById('searchInput').value = "";
-            filteredResults = [];
-            visibleResults = [];
-            
-            document.getElementById('resultsBody').innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 3rem; color: #94A3B8;">Awaiting file upload and URL processing...</td></tr>`;
-            document.getElementById('stats').innerHTML = `
-                <div class="stat-box"><h3>Total Queried</h3><p>0</p></div>
-                <div class="stat-box"><h3>Matches</h3><p>0</p></div>
-                <div class="stat-box"><h3>Not Found</h3><p>0</p></div>
-                <div class="stat-box"><h3>Duplicates</h3><p>0</p></div>
-            `;
-            document.getElementById('pagination').innerHTML = "";
-        });
-
-        document.getElementById('downloadExcelBtn').addEventListener('click', () => {
-            if (!filteredResults.length) return alert("No results to export.");
-
-            const exportData = filteredResults.map(r => ({
-                "ID": r.id || "",
-                "Language": r.language || "",
-                "Path": r.path || "",
-                "Division Names": r.divisionNames === "Not Found" ? "" : r.divisionNames,
-                "SUB-Division": r.subDivision || "",
-                "Page URLs": r.originalUrl,
-                "Page Types": r.pageTypes || "",
-                "Match Status": r.divisionNames === "Not Found" ? "Missing" : "Found",
-                "Is Duplicate": r.duplicate ? "Yes" : "No"
-            }));
-
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Mapped Results");
-            XLSX.writeFile(workbook, "URL_Division_Mapping.xlsx");
-        });
-
-        document.getElementById('downloadCsvBtn').addEventListener('click', () => {
-            if (!filteredResults.length) return alert("No results to export.");
-
-            let csv = `"ID","Language","Path","Division Names","SUB-Division","Page URLs","Page Types","Match Status","Is Duplicate"\n`;
-
-            filteredResults.forEach(r => {
-                const divNames = r.divisionNames === "Not Found" ? "" : r.divisionNames;
-                const matchStatus = r.divisionNames === "Not Found" ? "Missing" : "Found";
-                const isDup = r.duplicate ? "Yes" : "No";
-                
-                csv += `"${r.id || ""}","${r.language || ""}","${r.path || ""}","${divNames}","${r.subDivision || ""}","${r.originalUrl}","${r.pageTypes || ""}","${matchStatus}","${isDup}"\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = "URL_Division_Mapping.csv";
-            link.click();
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
+
 </html>
